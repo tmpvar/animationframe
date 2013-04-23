@@ -20,3 +20,23 @@ test("give a callback at the end of a frame", function(t) {
     }, 100);
   });
 });
+
+test("destroy", function(t) {
+
+  var called = 0;
+  var manager = new AnimationFrame(function() {
+    called++;
+  });
+
+  var id = manager.requestAnimationFrame(function(time) {
+    called++;
+  });
+
+  manager.destroy();
+
+  setTimeout(function() {
+    t.equal(called, 0);
+    t.end();
+  }, 100);
+
+});

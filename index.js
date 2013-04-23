@@ -48,6 +48,11 @@ function AnimationFrame(afterFrameFn) {
 
     return frameIdx;
   }
-}
+
+  this.destroy = function() {
+    frameRequests = [];
+    ticking = false;
+  };
+};
 
 module.exports = AnimationFrame;

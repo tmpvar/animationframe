@@ -28,8 +28,12 @@ setTimeout(function() {
   manager.cancelAnimationFrame(id);
 }, 1000)
 
+// If you need to cleanup all of the callbacks and allow node to exit
+manager.destroy();
 
 ```
+
+
 
 # license
 
