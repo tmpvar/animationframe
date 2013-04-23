@@ -9,7 +9,6 @@ function AnimationFrame(afterFrameFn) {
       last = 0;
 
   var tick = function() {
-    console.log('tick')
     if (frameRequests.length > 0) {
 
       async(tick);
