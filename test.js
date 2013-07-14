@@ -57,7 +57,6 @@ test("custom timer", function(t) {
 test("only call once", function(t) {
   var calls = 0;
   var manager = new AnimationFrame(function() {
-    t.end();
   }, function(fn) {
     fn();
   });

@@ -11,15 +11,18 @@ function AnimationFrame(afterFrameFn, asyncFn) {
   asyncFn = asyncFn || async;
 
   var tick = function() {
-    if (frameRequests.length > 0) {
+    ticking = true;
 
-      async(tick);
+    if (frameRequests.length > 0) {
       var now = Date.now();
       if (now - last >= 16.6) {
-        while(frameRequests.length) {
-          frameRequests.pop().cb(now);
+        while(frameRequests.length > 0) {
+          var frame = frameRequests.pop();
+          frame.cb(now);
+          console.log(frameRequests.length);
         }
 
+        console.log('done');
         last = now
 
         afterFrameFn && afterFrameFn();
@@ -36,19 +39,21 @@ function AnimationFrame(afterFrameFn, asyncFn) {
   }
 
   this.requestAnimationFrame = function(cb) {
-    frameIdx++;
+    var frameId = frameIdx++;
 
-    frameRequests.push({
-      idx : frameIdx,
-      cb :  cb
+    process.nextTick(function() {
+
+      frameRequests.push({
+        idx : frameId,
+        cb :  cb
+      });
+
+      if (!ticking) {
+        ticking = true;
+        async(tick);
+      }
     });
-
-    if (!ticking) {
-      ticking = true;
-      async(tick);
-    }
-
-    return frameIdx;
+    return frameId;
   }
 
   this.destroy = function() {
