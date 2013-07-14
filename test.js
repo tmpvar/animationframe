@@ -40,3 +40,34 @@ test("destroy", function(t) {
   }, 100);
 
 });
+
+test("custom timer", function(t) {
+
+  var manager = new AnimationFrame(function() {
+    manager.destroy();
+    t.end();
+  }, function(fn) {
+    setTimeout(fn, 20);
+  });
+
+  manager.requestAnimationFrame(function(time) {});
+});
+
+
+test("only call once", function(t) {
+  var calls = 0;
+  var manager = new AnimationFrame(function() {
+    t.end();
+  }, function(fn) {
+    fn();
+  });
+
+  manager.requestAnimationFrame(function(time) {
+    calls++;
+  });
+
+  setTimeout(function() {
+    t.equal(calls, 1);
+    t.end();
+  }, 50)
+});

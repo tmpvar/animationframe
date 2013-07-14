@@ -2,20 +2,22 @@ var async = (typeof setImmediate === 'function') ?
             setImmediate :
             function(cb) { setTimeout(cb, 0); };
 
-function AnimationFrame(afterFrameFn) {
+function AnimationFrame(afterFrameFn, asyncFn) {
   var frameRequests = [],
       frameIdx = 0,
       ticking = false,
       last = 0;
+
+  asyncFn = asyncFn || async;
 
   var tick = function() {
     if (frameRequests.length > 0) {
 
       async(tick);
       var now = Date.now();
-      if (now - last > 16) {
-        for (var i = 0; i<frameRequests.length; i++) {
-          frameRequests[i].cb(now);
+      if (now - last >= 16.6) {
+        while(frameRequests.length) {
+          frameRequests.pop().cb(now);
         }
 
         last = now
