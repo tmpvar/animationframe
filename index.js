@@ -1,66 +1,48 @@
-var async = (typeof setImmediate === 'function') ?
-            setImmediate :
-            function(cb) { setTimeout(cb, 0); };
+var binding = require('bindings')('binding');
 
-function AnimationFrame(afterFrameFn, asyncFn) {
+function AnimationFrame(afterFrameFn) {
   var frameRequests = [],
-      frameIdx = 0,
-      ticking = false,
-      last = 0
-      destroyed = false;
-
-  asyncFn = asyncFn || async;
+      frameIdx = 0;
 
   var tick = function() {
-    ticking = true;
-
     if (frameRequests.length > 0) {
-      var now = Date.now();
-      if (now - last >= 16.6) {
-        while(frameRequests.length > 0) {
-          frameRequests.pop().cb(now);
-        }
+      var processFrames = frameRequests.slice();
+      frameRequests = [];
 
-        last = now
-
-        afterFrameFn && afterFrameFn();
+      while(processFrames.length) {
+        processFrames.pop().cb(Date.now());
       }
-    }
 
-    ticking = false;
+      frameIdx = 0;
+
+      afterFrameFn && afterFrameFn();
+    }
   };
+
+  binding.emit(tick);
 
   this.cancelAnimationFrame = function(frameIdx) {
     frameRequests = frameRequests.filter(function(a) {
       return a.idx !== frameIdx;
     });
-  }
+  };
 
   this.requestAnimationFrame = function(cb) {
     var frameId = frameIdx++;
-
     process.nextTick(function() {
-      if (destroyed) {
-        return;
-      }
-
       frameRequests.push({
         idx : frameId,
         cb :  cb
       });
 
-      if (!ticking) {
-        ticking = true;
-        async(tick);
-      }
+      binding.dirty();
     });
     return frameId;
-  }
+  };
 
   this.destroy = function() {
-    destroyed = true;
     frameRequests = [];
-    ticking = false;
+    binding.destroy();
   };
 };
 
