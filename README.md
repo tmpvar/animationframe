@@ -19,17 +19,22 @@ var endOfFrame = function() {
 
 var manager = new (require('animationframe').AnimationFrame)(endOfFrame);
 
-var id = manager.requestAnimationFrame(function(millis) {
+var count = 0;
+var id = manager.requestAnimationFrame(function tick(millis) {
   // draw stuff, endOfFrame will be called after this
+  count++;
+  if (count < 10) {
+    manager.requestAnimationFrame(tick);
+  } else {
+    // If you need to cleanup all of the callbacks and allow node to exit
+    manager.destroy();
+  }
 });
 
-// Stop rendering after a second
-setTimeout(function() {
-  manager.cancelAnimationFrame(id);
-}, 1000)
+// you could cancel the animation frame request like so:
+// manager.cancelAnimationFrame(id);
 
-// If you need to cleanup all of the callbacks and allow node to exit
-manager.destroy();
+
 
 ```
 
