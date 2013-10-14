@@ -10,9 +10,7 @@ Persistent<Function> tickCallback;
 
 static void tick(uv_timer_t* handle, int status) {
   if (dirty) {
-    const unsigned argc = 0;
-    Local<Value> argv[argc] = {};
-    tickCallback->Call(Context::GetCurrent()->Global(), argc, argv);
+    tickCallback->Call(Context::GetCurrent()->Global(), 0, NULL);
     dirty = false;
   }
 }
