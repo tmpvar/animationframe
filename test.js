@@ -54,23 +54,3 @@ test("only call once", function(t) {
     manager.destroy();
   }, 32);
 });
-
-test("call many times", function(t) {
-
-  var manager = new AnimationFrame(function() {});
-  var calls = 0;
-  manager.requestAnimationFrame(function tick(time) {
-
-    if (calls < 5) {
-      manager.requestAnimationFrame(tick);
-    }
-    calls++;
-  });
-
-  setTimeout(function() {
-    t.equal(calls, 5);
-    t.end();
-    manager.destroy();
-  }, 16*6);
-
-});
