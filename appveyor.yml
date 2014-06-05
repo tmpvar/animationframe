@@ -15,14 +15,14 @@ install:
   - npm install
 
 # Post-install test scripts.
-test_script:
-  # Output useful info for debugging.
-  - node --version
-  - npm --version
-  # We test multiple Windows shells because of Node.js stdout buffering issues:
-  # https://github.com/joyent/node/issues/3584
-  - ps: "cd test && npm install && npm test # PowerShell" # Pass comment to PS for easier debugging
-  - cmd: cd test && npm install && npm test
+#test_script:
+#  # Output useful info for debugging.
+#  - node --version
+#  - npm --version
+#  # We test multiple Windows shells because of Node.js stdout buffering issues:
+#  # https://github.com/joyent/node/issues/3584
+#  - ps: "cd test && npm install && npm test # PowerShell" # Pass comment to PS for easier debugging
+#  - cmd: cd test && npm install && npm test
 
 # Don't actually build.
 build: off
