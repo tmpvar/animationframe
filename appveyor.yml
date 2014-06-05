@@ -29,7 +29,7 @@ build: off
 
 artifacts:
 
-  - path build
+  - path: build
 
 deploy: off
 
