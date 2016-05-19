@@ -1,59 +1,60 @@
 #include <node.h>
+#include <nan.h>
 #include <uv.h>
 #include <stdio.h>
+
 using namespace node;
-using namespace v8;
+using v8::FunctionTemplate;
+using v8::Function;
+// using v8::Handle;
+// using v8::Object;
+using v8::String;
 
 uv_timer_t timer;
 bool dirty = false;
-Persistent<Function> tickCallback;
+Nan::Callback *tickCallback;
 
-static void tick(uv_timer_t* handle, int status) {
+static void tick(uv_timer_t* handle) {
   if (dirty) {
-    tickCallback->Call(Context::GetCurrent()->Global(), 0, NULL);
+    tickCallback->Call(0, 0);
     dirty = false;
   }
 }
 
-Handle<Value> Emit(const Arguments& args) {
-  HandleScope scope;
-
+NAN_METHOD(Emit) {
   uv_timer_init(uv_default_loop(), &timer);
   uv_timer_start(&timer, tick, 16, 16);
 
-  tickCallback = Persistent<Function>::New(Handle<Function>::Cast(args[0]));
-
-  return scope.Close(Undefined());
+  tickCallback = new Nan::Callback(info[0].As<Function>());
 }
 
-Handle<Value> Dirty(const Arguments& args) {
-  HandleScope scope;
-
+NAN_METHOD(Dirty) {
   dirty = true;
-
-  return scope.Close(Undefined());
 }
 
-Handle<Value> Destroy(const Arguments& args) {
-  HandleScope scope;
-
+NAN_METHOD(Destroy) {
   uv_timer_stop(&timer);
   uv_unref((uv_handle_t *)&timer);
-
-  return scope.Close(Undefined());
 }
 
+NAN_MODULE_INIT(InitAll) {
+  Nan::Set(
+    target,
+    Nan::New<String>("emit").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<FunctionTemplate>(Emit)).ToLocalChecked()
+  );
 
-void init(Handle<Object> exports) {
+  Nan::Set(
+    target,
+    Nan::New<String>("dirty").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<FunctionTemplate>(Dirty)).ToLocalChecked()
+  );
 
-  exports->Set(String::NewSymbol("emit"),
-      FunctionTemplate::New(Emit)->GetFunction());
-
-  exports->Set(String::NewSymbol("dirty"),
-      FunctionTemplate::New(Dirty)->GetFunction());
-
-  exports->Set(String::NewSymbol("destroy"),
-      FunctionTemplate::New(Destroy)->GetFunction());
+  Nan::Set(
+    target,
+    Nan::New<String>("destroy").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<FunctionTemplate>(Destroy)).ToLocalChecked()
+  );
 }
 
-NODE_MODULE(binding, init)
+NODE_MODULE(binding, InitAll)
