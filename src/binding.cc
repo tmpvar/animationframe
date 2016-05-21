@@ -15,7 +15,8 @@ bool dirty = false;
 Nan::Callback *tickCallback;
 
 static void tick(uv_timer_t* handle) {
-  if (dirty) {
+  Nan::HandleScope scope;
+  if (dirty && tickCallback) {
     tickCallback->Call(0, 0);
     dirty = false;
   }
