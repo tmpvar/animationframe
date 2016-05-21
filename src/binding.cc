@@ -6,8 +6,7 @@
 using namespace node;
 using v8::FunctionTemplate;
 using v8::Function;
-// using v8::Handle;
-// using v8::Object;
+
 using v8::String;
 
 uv_timer_t timer;
@@ -16,10 +15,11 @@ Nan::Callback *tickCallback;
 
 static void tick(uv_timer_t* handle) {
   Nan::HandleScope scope;
-  if (dirty && tickCallback) {
-    tickCallback->Call(0, 0);
-    dirty = false;
-  }
+
+  // TODO: use the shared ArrayBuffer trick to determine
+  //       whether we should call into JS or not.
+
+  tickCallback->Call(0, 0);
 }
 
 NAN_METHOD(Emit) {
